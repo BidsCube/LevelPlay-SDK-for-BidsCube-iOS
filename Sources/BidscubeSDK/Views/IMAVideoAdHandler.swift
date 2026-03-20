@@ -1,3 +1,4 @@
+#if !BIDSCUBE_NO_IMA
 import UIKit
 import SwiftUI
 import AVFoundation
@@ -530,3 +531,37 @@ extension IMAVideoAdHandler: IMAAdsManagerDelegate {
         contentPlayer?.play()
     }
 }
+
+#else
+
+import UIKit
+
+/// Stub when the package is resolved with `BIDSCUBE_SPM_SKIP_IMA=1` (CI). Video/IMA is unavailable in that configuration.
+/// Apps must integrate **without** that env var (default) or use CocoaPods for full IMA support.
+public final class IMAVideoAdHandler: UIView {
+    public init(vastURL: String, clickURL: String? = nil) {
+        super.init(frame: .zero)
+        backgroundColor = .black
+    }
+
+    public init(vastXML: String, clickURL: String? = nil) {
+        super.init(frame: .zero)
+        backgroundColor = .black
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    public func setPlacementInfo(_ placementId: String, callback: AdCallback?) {}
+    public func setParentViewController(_ viewController: UIViewController?) {}
+    public func refreshIMASetup() {}
+    public func cleanup() {}
+    public func loadAd() {}
+
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+    }
+}
+
+#endif

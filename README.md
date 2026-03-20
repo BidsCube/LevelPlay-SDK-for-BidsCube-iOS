@@ -112,24 +112,26 @@ Repository layout:
 - `Tests/bidscubeSdkTests`
 - `Examples/`
 
-## SwiftPM / CI: `swift package resolve` permission errors (IMA)
+## SwiftPM / CI: помилки IMA binary ZIP (Code=513)
 
-Залежність **Google InteractiveMediaAds** тягне binary ZIP; SwiftPM розпаковує його під `.build/artifacts/`. На деяких машинах і на **GitHub Actions** можна отримати `NSCocoaErrorDomain Code=513` / `Permission denied` при видаленні тимчасової папки після завантаження.
+Залежність **GoogleInteractiveMediaAds** (SPM) тягне великий binary ZIP; на **GitHub Actions macOS** SwiftPM часто падає з `NSCocoaErrorDomain Code=513` при очищенні тимчасової папки (навіть з `--disable-sandbox`).
 
-**Локально:** видаліть кеш і спробуйте знову:
+**У CI** встановлено **`BIDSCUBE_SPM_SKIP_IMA=1`**: `Package.swift` тоді **не** підключає Google IMA, а збірка йде з **`BIDSCUBE_NO_IMA`** і стабом `IMAVideoAdHandler` (лише для проходження `resolve`/`describe`; IMA-відео в цій конфігурації не працює).
+
+**Звичайна інтеграція** (Xcode / локально без цієї змінної) — IMA як раніше.
+
+Локально імітувати CI:
+
+```bash
+BIDSCUBE_SPM_SKIP_IMA=1 swift package resolve
+```
+
+Якщо потрібно саме завантажити IMA, але локально ловите 513:
 
 ```bash
 rm -rf .build
-swift package --disable-sandbox resolve
-```
-
-Якщо не допоможе (окремий scratch + без sandbox):
-
-```bash
 swift package --disable-sandbox --scratch-path /tmp/bidscube-spm resolve
 ```
-
-**У CI** workflow використовує **`--disable-sandbox`**, **`--scratch-path`** у `/tmp` і `rm -rf .build` перед `resolve` (див. `.github/workflows/publish.yml` та `swift-ci.yml`).
 
 ## License
 
