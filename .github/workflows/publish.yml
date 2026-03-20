@@ -240,8 +240,9 @@ jobs:
           set -euo pipefail
           SCRATCH="/tmp/swiftpm-bidscube-${{ github.run_id }}-${{ github.run_attempt }}"
           rm -rf "$SCRATCH" .build
-          swift package --scratch-path "$SCRATCH" resolve
-          swift package --scratch-path "$SCRATCH" describe --type json > /dev/null
+          # --disable-sandbox: IMA binary ZIP extract often hits Code=513 removing temp dirs under sandbox on GHA macOS.
+          swift package --disable-sandbox --scratch-path "$SCRATCH" resolve
+          swift package --disable-sandbox --scratch-path "$SCRATCH" describe --type json > /dev/null
           echo "✅ Package.swift resolve + describe OK"
 
       - name: Create GitHub Release

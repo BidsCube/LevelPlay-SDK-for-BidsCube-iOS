@@ -120,16 +120,16 @@ Repository layout:
 
 ```bash
 rm -rf .build
-swift package resolve
+swift package --disable-sandbox resolve
 ```
 
-Якщо не допоможе:
+Якщо не допоможе (окремий scratch + без sandbox):
 
 ```bash
-swift package --scratch-path /tmp/bidscube-spm resolve
+swift package --disable-sandbox --scratch-path /tmp/bidscube-spm resolve
 ```
 
-**У CI** у цьому репозиторії workflow використовує `--scratch-path` у `/tmp` і `rm -rf .build` перед `resolve` (див. `.github/workflows/publish.yml` та `swift-ci.yml`).
+**У CI** workflow використовує **`--disable-sandbox`**, **`--scratch-path`** у `/tmp` і `rm -rf .build` перед `resolve` (див. `.github/workflows/publish.yml` та `swift-ci.yml`).
 
 ## License
 

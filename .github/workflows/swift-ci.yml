@@ -19,6 +19,6 @@ jobs:
           set -euo pipefail
           SCRATCH="/tmp/swiftpm-bidscube-${{ github.run_id }}-${{ github.run_attempt }}"
           rm -rf "$SCRATCH" .build
-          swift package --scratch-path "$SCRATCH" resolve
-          swift package --scratch-path "$SCRATCH" describe --type json > /dev/null
+          swift package --disable-sandbox --scratch-path "$SCRATCH" resolve
+          swift package --disable-sandbox --scratch-path "$SCRATCH" describe --type json > /dev/null
           echo "OK"
