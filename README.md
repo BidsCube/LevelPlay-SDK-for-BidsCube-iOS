@@ -112,21 +112,21 @@ Repository layout:
 - `Tests/bidscubeSdkTests`
 - `Examples/`
 
-## SwiftPM / CI: помилки IMA binary ZIP (Code=513)
+## SwiftPM / CI: IMA binary ZIP errors (Code=513)
 
-Залежність **GoogleInteractiveMediaAds** (SPM) тягне великий binary ZIP; на **GitHub Actions macOS** SwiftPM часто падає з `NSCocoaErrorDomain Code=513` при очищенні тимчасової папки (навіть з `--disable-sandbox`).
+The **GoogleInteractiveMediaAds** SPM dependency downloads a large binary ZIP. On **GitHub Actions macOS**, SwiftPM often fails with `NSCocoaErrorDomain Code=513` while cleaning its temp directory (even with `--disable-sandbox`).
 
-**У CI** встановлено **`BIDSCUBE_SPM_SKIP_IMA=1`**: `Package.swift` тоді **не** підключає Google IMA, а збірка йде з **`BIDSCUBE_NO_IMA`** і стабом `IMAVideoAdHandler` (лише для проходження `resolve`/`describe`; IMA-відео в цій конфігурації не працює).
+**In CI**, **`BIDSCUBE_SPM_SKIP_IMA=1`** is set: `Package.swift` then **omits** Google IMA, and the build uses **`BIDSCUBE_NO_IMA`** with a stub `IMAVideoAdHandler` (enough for `resolve` / `describe`; **IMA video does not work** in that configuration).
 
-**Звичайна інтеграція** (Xcode / локально без цієї змінної) — IMA як раніше.
+**Normal integration** (Xcode / local machine without that env var) keeps IMA as before.
 
-Локально імітувати CI:
+To reproduce CI locally:
 
 ```bash
 BIDSCUBE_SPM_SKIP_IMA=1 swift package resolve
 ```
 
-Якщо потрібно саме завантажити IMA, але локально ловите 513:
+If you need to fetch IMA but hit 513 locally:
 
 ```bash
 rm -rf .build
@@ -135,7 +135,7 @@ swift package --disable-sandbox --scratch-path /tmp/bidscube-spm resolve
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See `LICENSE`.
 
 ## Version
 
