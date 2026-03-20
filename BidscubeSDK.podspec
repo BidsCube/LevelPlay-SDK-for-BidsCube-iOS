@@ -1,0 +1,48 @@
+Pod::Spec.new do |spec|
+  spec.name         = "BidscubeSDK"
+  spec.version      = "1.0.0"
+  spec.summary      = "BidsCube iOS SDK for displaying ads"
+  spec.description  = <<-DESC
+                      BidsCube iOS SDK provides a comprehensive solution for displaying image, video, and native ads in iOS applications.
+                      The SDK supports various ad formats and positions with easy integration.
+                      
+                      Features:
+                      - Image, Video, and Native ad support
+                      - Multiple ad positions (header, footer, sidebar, fullscreen)
+                      - VAST video ad support with IMA SDK integration
+                      - Banner ad management
+                      - Gesture-based navigation controls
+                      - Error handling and timeout management
+                      DESC
+
+  spec.homepage     = "https://github.com/bidscube/bidscube-sdk-ios"
+  spec.license      = { :type => "MIT", :file => "LICENSE" }
+  spec.author       = { "Vlad" => "generalisimys20132@gmail.com" }
+  
+  spec.platform     = :ios, "14.0"
+  spec.ios.deployment_target = '14.0'
+  spec.swift_versions = ['5.9']
+  
+  spec.documentation_url = "https://github.com/bidscube/bidscube-sdk-ios"
+  
+  # Tag must exist on remote before pod spec lint / trunk push (e.g. git tag v1.0.0 && git push origin v1.0.0)
+  spec.source       = { :git => "https://github.com/bidscube/bidscube-sdk-ios.git", :tag => "v#{spec.version}" }
+  
+  spec.source_files = "Sources/BidscubeSDK/**/*.{swift,h}"
+  spec.public_header_files = "Sources/BidscubeSDK/bidscubeSdk.h"
+  
+  spec.dependency 'GoogleAds-IMA-iOS-SDK', '~> 3.19'
+  
+  spec.frameworks = 'UIKit', 'WebKit', 'AVFoundation', 'MediaPlayer'
+  
+  spec.requires_arc = true
+  
+  spec.pod_target_xcconfig = {
+    'SWIFT_STRICT_CONCURRENCY' => 'off'
+  }
+  
+  spec.user_target_xcconfig = {
+    'SWIFT_STRICT_CONCURRENCY' => 'off'
+  }
+  
+end
