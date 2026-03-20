@@ -112,6 +112,25 @@ Repository layout:
 - `Tests/bidscubeSdkTests`
 - `Examples/`
 
+## SwiftPM / CI: `swift package resolve` permission errors (IMA)
+
+Залежність **Google InteractiveMediaAds** тягне binary ZIP; SwiftPM розпаковує його під `.build/artifacts/`. На деяких машинах і на **GitHub Actions** можна отримати `NSCocoaErrorDomain Code=513` / `Permission denied` при видаленні тимчасової папки після завантаження.
+
+**Локально:** видаліть кеш і спробуйте знову:
+
+```bash
+rm -rf .build
+swift package resolve
+```
+
+Якщо не допоможе:
+
+```bash
+swift package --scratch-path /tmp/bidscube-spm resolve
+```
+
+**У CI** у цьому репозиторії workflow використовує `--scratch-path` у `/tmp` і `rm -rf .build` перед `resolve` (див. `.github/workflows/publish.yml` та `swift-ci.yml`).
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

@@ -233,19 +233,16 @@ jobs:
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $VERSION"
-          git commit --amend --no-edit || true
-      - name: Validate Package.swift
+      # IMA (GoogleInteractiveMediaAds) binary target: default .build/artifacts/extract can hit
+      # NSCocoaErrorDomain 513 "Permission denied" on GHA macOS. Fresh /tmp scratch + no stale .build fixes it.
+      - name: Validate Swift package (SPM resolve)
         run: |
-          swift package resolve
-          swift package describe --type json > /dev/null
-          echo "Package.swift validation successful"
-
-      - name: Validate package structure
-        run: |
-          # Validate package can be resolved and described
-          swift package resolve
-          swift package describe --type json > /dev/null
-          echo "✅ Package structure validation successful"
+          set -euo pipefail
+          SCRATCH="/tmp/swiftpm-bidscube-${{ github.run_id }}-${{ github.run_attempt }}"
+          rm -rf "$SCRATCH" .build
+          swift package --scratch-path "$SCRATCH" resolve
+          swift package --scratch-path "$SCRATCH" describe --type json > /dev/null
+          echo "✅ Package.swift resolve + describe OK"
 
       - name: Create GitHub Release
         uses: actions/create-release@v1

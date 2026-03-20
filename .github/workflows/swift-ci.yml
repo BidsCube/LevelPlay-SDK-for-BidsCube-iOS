@@ -1,0 +1,24 @@
+# Package is iOS-only; on GHA we only verify SPM resolution (IMA binary extract needs clean scratch).
+name: Swift CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  spm:
+    name: SPM resolve
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve & describe (isolated scratch path)
+        run: |
+          set -euo pipefail
+          SCRATCH="/tmp/swiftpm-bidscube-${{ github.run_id }}-${{ github.run_attempt }}"
+          rm -rf "$SCRATCH" .build
+          swift package --scratch-path "$SCRATCH" resolve
+          swift package --scratch-path "$SCRATCH" describe --type json > /dev/null
+          echo "OK"
