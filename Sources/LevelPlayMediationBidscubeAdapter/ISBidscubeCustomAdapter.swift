@@ -6,11 +6,16 @@ import BidscubeSDK
 @objc(ISBidscubeCustomAdapter)
 public final class ISBidscubeCustomAdapter: ISBaseNetworkAdapter {
     public override func `init`(_ adData: ISAdData, delegate: ISNetworkInitializationDelegate) {
-        _ = adData
+        _ = BidscubeLevelPlayServerParams.from(adData)
         if !BidscubeSDK.isInitialized() {
+            NSLog("BidscubeLevelPlay: initializing BidscubeSDK from adapter fallback config.")
             BidscubeSDK.initialize()
         }
-        delegate.onInitDidSucceed()
+        if BidscubeSDK.isInitialized() {
+            delegate.onInitDidSucceed()
+        } else {
+            delegate.onInitDidFailWith(.internal, errorCode: ISAdapterErrorInternal, errorMessage: "BidscubeSDK initialization failed")
+        }
     }
 
     public override func networkSDKVersion() -> String {

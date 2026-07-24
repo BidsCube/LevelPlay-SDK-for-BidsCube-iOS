@@ -21,17 +21,18 @@ public final class ISBidscubeCustomInterstitial: ISBaseInterstitial {
 
     public override func isAdAvailable(with adData: ISAdData) -> Bool {
         guard let placementId = bidscubePlacementId(from: adData) else { return false }
-        return BidscubeLevelPlayAdapterState.loadedInterstitialPlacements.contains(placementId)
+        return BidscubeLevelPlayAdapterState.isInterstitialLoaded(placementId)
     }
 
     public override func showAd(with viewController: UIViewController, adData: ISAdData, delegate: ISInterstitialAdDelegate) {
+        // Presenter-aware show APIs are not exposed by BidscubeSDK on iOS yet; viewController is reserved.
         _ = viewController
         guard let placementId = bidscubePlacementId(from: adData) else {
             delegate.adDidFailToShowWithErrorCode(ISAdapterErrorMissingParams, errorMessage: "Missing placementId")
             return
         }
 
-        guard BidscubeLevelPlayAdapterState.loadedInterstitialPlacements.contains(placementId) else {
+        guard BidscubeLevelPlayAdapterState.isInterstitialLoaded(placementId) else {
             delegate.adDidFailToShowWithErrorCode(ISAdapterErrorInternal, errorMessage: "Interstitial ad is not ready")
             return
         }

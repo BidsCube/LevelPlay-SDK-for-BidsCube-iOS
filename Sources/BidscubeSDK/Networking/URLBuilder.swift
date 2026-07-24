@@ -85,6 +85,10 @@ struct URLBuilder {
         items.append(URLQueryItem(name: Constants.QueryParams.advertisingId, value: DeviceInfo.advertisingIdentifier))
         items.append(URLQueryItem(name: Constants.QueryParams.doNotTrack, value: String(DeviceInfo.doNotTrack)))
 
+        if let userId = BidscubeSDK.getConfiguration()?.userId, !userId.isEmpty {
+            items.append(URLQueryItem(name: Constants.QueryParams.userId, value: userId))
+        }
+
         return items
     }
 

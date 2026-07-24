@@ -58,7 +58,7 @@ final class BidscubeInterstitialLoadCallback: NSObject, AdCallback {
     func onAdLoaded(_ placementId: String) {
         guard !finished else { return }
         finished = true
-        BidscubeLevelPlayAdapterState.loadedInterstitialPlacements.insert(placementId)
+        BidscubeLevelPlayAdapterState.setInterstitialLoaded(placementId, loaded: true)
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.adDidLoad()
         }
@@ -69,7 +69,7 @@ final class BidscubeInterstitialLoadCallback: NSObject, AdCallback {
     func onAdFailed(_ placementId: String, errorCode: Int, errorMessage: String) {
         guard !finished else { return }
         finished = true
-        BidscubeLevelPlayAdapterState.loadedInterstitialPlacements.remove(placementId)
+        BidscubeLevelPlayAdapterState.setInterstitialLoaded(placementId, loaded: false)
         let code = errorCode != 0 ? errorCode : ISAdapterErrorInternal
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.adDidFailToLoadWith(.noFill, errorCode: code, errorMessage: errorMessage)
@@ -93,13 +93,13 @@ final class BidscubeInterstitialShowCallback: NSObject, AdCallback {
         }
     }
     func onAdClosed(_ placementId: String) {
-        BidscubeLevelPlayAdapterState.loadedInterstitialPlacements.remove(placementId)
+        BidscubeLevelPlayAdapterState.setInterstitialLoaded(placementId, loaded: false)
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.adDidClose()
         }
     }
     func onAdFailed(_ placementId: String, errorCode: Int, errorMessage: String) {
-        BidscubeLevelPlayAdapterState.loadedInterstitialPlacements.remove(placementId)
+        BidscubeLevelPlayAdapterState.setInterstitialLoaded(placementId, loaded: false)
         let code = errorCode != 0 ? errorCode : ISAdapterErrorInternal
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.adDidFailToShowWithErrorCode(code, errorMessage: errorMessage)
@@ -117,7 +117,7 @@ final class BidscubeRewardedLoadCallback: NSObject, AdCallback {
     func onAdLoaded(_ placementId: String) {
         guard !finished else { return }
         finished = true
-        BidscubeLevelPlayAdapterState.loadedRewardedPlacements.insert(placementId)
+        BidscubeLevelPlayAdapterState.setRewardedLoaded(placementId, loaded: true)
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.adDidLoad()
         }
@@ -128,7 +128,7 @@ final class BidscubeRewardedLoadCallback: NSObject, AdCallback {
     func onAdFailed(_ placementId: String, errorCode: Int, errorMessage: String) {
         guard !finished else { return }
         finished = true
-        BidscubeLevelPlayAdapterState.loadedRewardedPlacements.remove(placementId)
+        BidscubeLevelPlayAdapterState.setRewardedLoaded(placementId, loaded: false)
         let code = errorCode != 0 ? errorCode : ISAdapterErrorInternal
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.adDidFailToLoadWith(.noFill, errorCode: code, errorMessage: errorMessage)
@@ -138,6 +138,7 @@ final class BidscubeRewardedLoadCallback: NSObject, AdCallback {
 
 final class BidscubeRewardedShowCallback: NSObject, AdCallback {
     weak var delegate: ISRewardedVideoAdDelegate?
+    private let rewardGuard = BidscubeRewardedRewardGuard()
 
     func onAdLoading(_ placementId: String) {}
     func onAdLoaded(_ placementId: String) {}
@@ -154,13 +155,15 @@ final class BidscubeRewardedShowCallback: NSObject, AdCallback {
         }
     }
     func onAdClosed(_ placementId: String) {
-        BidscubeLevelPlayAdapterState.loadedRewardedPlacements.remove(placementId)
+        rewardGuard.onClosedBeforeCompletion()
+        BidscubeLevelPlayAdapterState.setRewardedLoaded(placementId, loaded: false)
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.adDidClose()
         }
     }
     func onAdFailed(_ placementId: String, errorCode: Int, errorMessage: String) {
-        BidscubeLevelPlayAdapterState.loadedRewardedPlacements.remove(placementId)
+        rewardGuard.onShowFailed()
+        BidscubeLevelPlayAdapterState.setRewardedLoaded(placementId, loaded: false)
         let code = errorCode != 0 ? errorCode : ISAdapterErrorInternal
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.adDidFailToShowWithErrorCode(code, errorMessage: errorMessage)
@@ -173,11 +176,15 @@ final class BidscubeRewardedShowCallback: NSObject, AdCallback {
         }
     }
     func onVideoAdCompleted(_ placementId: String) {
+        rewardGuard.onVideoCompleted()
         DispatchQueue.main.async { [weak self] in
             guard let delegate = self?.delegate else { return }
             bidscubeInvokeOptional(delegate, selector: "adDidEnd")
-            delegate.adRewarded()
         }
+        rewardGuard.maybeReward(delegate)
+    }
+    func onVideoAdSkipped(_ placementId: String) {
+        rewardGuard.onVideoSkipped()
     }
 }
 #endif

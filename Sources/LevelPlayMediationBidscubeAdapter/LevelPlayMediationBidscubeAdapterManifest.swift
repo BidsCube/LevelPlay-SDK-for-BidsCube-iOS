@@ -2,7 +2,7 @@ import Foundation
 
 /// Single source for LevelPlay custom adapter versioning (align with `BidscubeSDK.Constants.sdkVersion` and Android `ADAPTER_VERSION`).
 public enum LevelPlayMediationBidscubeAdapterManifest {
-    public static let adapterVersion = "1.0.0"
+    public static let adapterVersion = "1.0.1"
     /// Documented CocoaPods floor for `IronSourceSDK` when using this adapter (see `LevelPlayMediationBidscubeAdapter.podspec`).
     public static let minimumIronSourceCocoaPodsVersion = "9.3.0.0"
     public static let placementInstanceKey = "placementId"

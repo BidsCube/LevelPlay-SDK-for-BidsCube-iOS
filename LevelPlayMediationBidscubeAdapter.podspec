@@ -1,11 +1,11 @@
 Pod::Spec.new do |spec|
   spec.name         = "LevelPlayMediationBidscubeAdapter"
-  spec.version      = "1.0.0"
+  spec.version      = "1.0.1"
   spec.summary      = "Bidscube LevelPlay custom adapter for iOS"
   spec.description  = <<-DESC
                       Source-based LevelPlay custom adapter for Bidscube on iOS (Swift).
                       Layout: manifest + state + placement helper + callbacks + ISBidscubeCustom{Adapter,Banner,Interstitial,RewardedVideo}.
-                      Adapter version 1.0.0 is defined in LevelPlayMediationBidscubeAdapterManifest.swift (network SDK version from BidscubeSDK.Constants.sdkVersion).
+                      Adapter version 1.0.1 is defined in LevelPlayMediationBidscubeAdapterManifest.swift (network SDK version from BidscubeSDK.Constants.sdkVersion).
                       DESC
 
   spec.homepage     = "https://github.com/BidsCube/LevelPlay-SDK-iOS"

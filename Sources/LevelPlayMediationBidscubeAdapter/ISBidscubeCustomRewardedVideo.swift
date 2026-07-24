@@ -21,7 +21,7 @@ public final class ISBidscubeCustomRewardedVideo: ISBaseRewardedVideo {
 
     public override func isAdAvailable(with adData: ISAdData) -> Bool {
         guard let placementId = bidscubePlacementId(from: adData) else { return false }
-        return BidscubeLevelPlayAdapterState.loadedRewardedPlacements.contains(placementId)
+        return BidscubeLevelPlayAdapterState.isRewardedLoaded(placementId)
     }
 
     public override func showAd(with viewController: UIViewController, adData: ISAdData, delegate: ISRewardedVideoAdDelegate) {
@@ -31,7 +31,7 @@ public final class ISBidscubeCustomRewardedVideo: ISBaseRewardedVideo {
             return
         }
 
-        guard BidscubeLevelPlayAdapterState.loadedRewardedPlacements.contains(placementId) else {
+        guard BidscubeLevelPlayAdapterState.isRewardedLoaded(placementId) else {
             delegate.adDidFailToShowWithErrorCode(ISAdapterErrorInternal, errorMessage: "Rewarded ad is not ready")
             return
         }

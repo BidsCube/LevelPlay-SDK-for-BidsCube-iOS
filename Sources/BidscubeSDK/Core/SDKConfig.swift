@@ -10,6 +10,8 @@ public final class SDKConfig {
     public let enableSKAdNetwork: Bool
     public let skAdNetworkId: String?
     public let skAdNetworkConversionValue: Int
+    /// Publisher user id sent to SSP as query param `user_id` (for postback).
+    public let userId: String?
 
     private init(enableLogging: Bool,
                  enableDebugMode: Bool,
@@ -19,6 +21,7 @@ public final class SDKConfig {
                  enableSKAdNetwork: Bool,
                  skAdNetworkId: String?,
                  skAdNetworkConversionValue: Int,
+                 userId: String?
 ) {
         self.enableLogging = enableLogging
         self.enableDebugMode = enableDebugMode
@@ -28,6 +31,7 @@ public final class SDKConfig {
         self.enableSKAdNetwork = enableSKAdNetwork
         self.skAdNetworkId = skAdNetworkId
         self.skAdNetworkConversionValue = skAdNetworkConversionValue
+        self.userId = userId
     }
 
     public final class Builder {
@@ -39,6 +43,7 @@ public final class SDKConfig {
         private var enableSKAdNetwork: Bool = false
         private var skAdNetworkId: String? = nil
         private var skAdNetworkConversionValue: Int = 0
+        private var userId: String? = nil
 
         public init() {}
 
@@ -89,7 +94,13 @@ public final class SDKConfig {
             self.skAdNetworkConversionValue = max(0, min(value, 63))
             return self
         }
-        
+
+        /// Publisher user id. Sent to SSP as query parameter `user_id` for postback.
+        @discardableResult
+        public func userId(_ id: String?) -> Builder {
+            self.userId = id
+            return self
+        }
 
         public func build() -> SDKConfig {
             SDKConfig(
@@ -101,6 +112,7 @@ public final class SDKConfig {
                 enableSKAdNetwork: enableSKAdNetwork,
                 skAdNetworkId: skAdNetworkId,
                 skAdNetworkConversionValue: skAdNetworkConversionValue,
+                userId: userId
             )
         }
     }
@@ -129,6 +141,3 @@ public final class SDKConfig {
         return "BidscubeSDK-iOS/1.0 (iOS \(systemVersion); \(model))"
     }
 }
-
-
-
