@@ -6,8 +6,8 @@
 
 **OpenRTB 2.6:** not implemented yet (response-side parsing belongs in `BidscubeSDK`; adapter does not POST bid requests).
 
-**Native LevelPlay:** not supported in this release.
+**Apple TV:** `BidscubeSDK` supports tvOS. LevelPlay does not — `IronSourceSDK` has no tvOS slice.
 
-**Load/show:** availability precheck on load; render may occur again on show until preload/cache APIs ship in `BidscubeSDK`.
+**Load/show:** banner loads once via `getImageAdView`. Interstitial and rewarded load only mark the instance ready; show is the single SSP request (`presentImageAd` / `presentVideoAd`).
 
-**Presenter:** `showAd(with: UIViewController, ...)` receives a presenter; BidscubeSDK does not expose presenter-aware show APIs on iOS yet.
+**Presenter:** fullscreen show uses the `UIViewController` passed by LevelPlay.

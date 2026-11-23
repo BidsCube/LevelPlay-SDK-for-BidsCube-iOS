@@ -8,6 +8,8 @@ struct BidscubeLevelPlayServerParams {
     let sspHost: String?
     let statsAuthority: String?
     let hasReservedOpenRtbParams: Bool
+    /// `userId` or `user_id` from the LevelPlay instance. Applied only if this adapter initializes the SDK.
+    let userId: String?
 
     static func from(_ adData: ISAdData) -> BidscubeLevelPlayServerParams {
         let placementId = bidscubePlacementId(from: adData)
@@ -15,8 +17,10 @@ struct BidscubeLevelPlayServerParams {
 
         func string(_ key: String) -> String? {
             let value = configuration[key] as? String ?? adData.value(forKey: key) as? String
-            guard let value, !value.isEmpty else { return nil }
-            return value
+            guard let value else { return nil }
+            let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return nil }
+            return trimmed
         }
 
         let openRtbKeys = [
@@ -42,7 +46,8 @@ struct BidscubeLevelPlayServerParams {
             requestAuthority: requestAuthority,
             sspHost: sspHost,
             statsAuthority: statsAuthority,
-            hasReservedOpenRtbParams: hasOpenRtb
+            hasReservedOpenRtbParams: hasOpenRtb,
+            userId: string("userId") ?? string("user_id")
         )
     }
 }

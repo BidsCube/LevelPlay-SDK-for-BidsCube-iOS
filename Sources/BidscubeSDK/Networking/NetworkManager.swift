@@ -197,7 +197,7 @@ enum NetworkError: Error, LocalizedError {
 
 extension NetworkManager {
     /// Shared instance for common network operations
-    public static let shared = NetworkManager()
+    nonisolated(unsafe) public static let shared = NetworkManager()
 }
 
 

@@ -1,3 +1,4 @@
+#if canImport(WebKit)
 import UIKit
 import WebKit
 import BidscubeSDK
@@ -82,6 +83,9 @@ public final class BannerAdView: UIView {
         webView.scrollView.bounces = false
         webView.navigationDelegate = self
         webView.isUserInteractionEnabled = true
+        #if os(tvOS)
+        webView.isUserInteractionEnabled = false
+        #endif
     }
     
     private func setupConstraints() {
@@ -142,7 +146,7 @@ public final class BannerAdView: UIView {
                          print("Banner Adm: \(adm)")
                         
                         if let positionValue = json["position"] as? Int,
-                           let position = BidscubeSDK.AdPosition(rawValue: positionValue) {
+                           let position = AdPosition(rawValue: positionValue) {
                             print("BannerAdView: Received position from server: \(positionValue) - \(self.displayName(for: position))")
                             DispatchQueue.main.async {
                                 BidscubeSDK.setResponseAdPosition(position)
@@ -325,7 +329,7 @@ public final class BannerAdView: UIView {
     
     
     
-    private func displayName(for position: BidscubeSDK.AdPosition) -> String {
+    private func displayName(for position: AdPosition) -> String {
         switch position {
         case .unknown: return "UNKNOWN"
         case .aboveTheFold: return "ABOVE_THE_FOLD"
@@ -374,6 +378,26 @@ public final class BannerAdView: UIView {
             print("BannerAdView: No click URL available to open")
         }
     }
+
+    #if os(tvOS)
+    public override var canBecomeFocused: Bool { true }
+
+    public override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
+        super.didUpdateFocus(in: context, with: coordinator)
+        coordinator.addCoordinatedAnimations({
+            self.layer.borderWidth = self.isFocused ? 6 : 0
+            self.layer.borderColor = UIColor.white.cgColor
+        }, completion: nil)
+    }
+
+    public override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        if presses.contains(where: { $0.type == .select }) {
+            handleTap()
+            return
+        }
+        super.pressesEnded(presses, with: event)
+    }
+    #endif
 }
 
 
@@ -425,3 +449,4 @@ extension BannerAdView: UIGestureRecognizerDelegate {
         return true
     }
 }
+#endif

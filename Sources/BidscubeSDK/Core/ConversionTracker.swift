@@ -6,9 +6,9 @@ final class ConversionTracker {
     
     // MARK: - Properties
     
-    private static var currentValue: Int = 0
-    private static var maxValue: Int = 63
-    private static var trackedEvents: Set<String> = []
+    nonisolated(unsafe) private static var currentValue: Int = 0
+    nonisolated(unsafe) private static var maxValue: Int = 63
+    nonisolated(unsafe) private static var trackedEvents: Set<String> = []
     
     // MARK: - Conversion Value Mapping
     

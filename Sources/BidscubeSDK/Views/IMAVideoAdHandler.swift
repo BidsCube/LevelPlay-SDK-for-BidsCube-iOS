@@ -1,4 +1,4 @@
-#if !BIDSCUBE_NO_IMA
+#if !BIDSCUBE_NO_IMA && os(iOS)
 import UIKit
 import SwiftUI
 import AVFoundation

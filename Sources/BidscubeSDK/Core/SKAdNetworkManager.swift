@@ -7,9 +7,9 @@ final class SKAdNetworkManager {
     
     // MARK: - Properties
     
-    private static var isRegistered = false
-    private static var currentConversionValue: Int = 0
-    private static var maxConversionValue: Int = 63
+    nonisolated(unsafe) private static var isRegistered = false
+    nonisolated(unsafe) private static var currentConversionValue: Int = 0
+    nonisolated(unsafe) private static var maxConversionValue: Int = 63
     
     // MARK: - Public Methods
     
@@ -21,7 +21,12 @@ final class SKAdNetworkManager {
             return
         }
         
+        #if os(tvOS)
+        Logger.info("SKAdNetwork is not available on Apple TV")
+        return
+        #else
         SKAdNetwork.registerAppForAdNetworkAttribution()
+        #endif
         isRegistered = true
         Logger.info("SKAdNetwork registered for attribution")
     }
@@ -36,7 +41,12 @@ final class SKAdNetworkManager {
             return
         }
         
+        #if os(tvOS)
+        Logger.info("SKAdNetwork is not available on Apple TV")
+        return
+        #else
         SKAdNetwork.updateConversionValue(clampedValue)
+        #endif
         currentConversionValue = clampedValue
         Logger.info("SKAdNetwork conversion value updated to \(clampedValue)")
     }
@@ -54,7 +64,11 @@ final class SKAdNetworkManager {
     
     /// Check if SKAdNetwork is available
     public static func isAvailable() -> Bool {
+        #if os(tvOS)
+        return false
+        #else
         return true
+        #endif
     }
     
     /// Get SKAdNetwork attribution status

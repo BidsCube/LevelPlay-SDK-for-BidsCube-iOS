@@ -115,6 +115,21 @@ public final class SDKConfig {
                 userId: userId
             )
         }
+
+        /// Prefill builder from an existing config (e.g. for runtime userId updates).
+        public static func from(_ config: SDKConfig) -> Builder {
+            let b = Builder()
+            b.enableLogging = config.enableLogging
+            b.enableDebugMode = config.enableDebugMode
+            b.defaultAdTimeoutMs = config.defaultAdTimeoutMs
+            b.defaultAdPosition = config.defaultAdPosition
+            b.baseURL = config.baseURL
+            b.enableSKAdNetwork = config.enableSKAdNetwork
+            b.skAdNetworkId = config.skAdNetworkId
+            b.skAdNetworkConversionValue = config.skAdNetworkConversionValue
+            b.userId = config.userId
+            return b
+        }
     }
 
     public static var detectedAppId: String {

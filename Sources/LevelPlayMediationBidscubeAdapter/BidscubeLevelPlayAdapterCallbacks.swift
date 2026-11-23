@@ -50,33 +50,6 @@ final class BidscubeBannerLoadCallback: NSObject, AdCallback {
 
 // MARK: - Interstitial
 
-final class BidscubeInterstitialLoadCallback: NSObject, AdCallback {
-    weak var delegate: ISInterstitialAdDelegate?
-    private var finished = false
-
-    func onAdLoading(_ placementId: String) {}
-    func onAdLoaded(_ placementId: String) {
-        guard !finished else { return }
-        finished = true
-        BidscubeLevelPlayAdapterState.setInterstitialLoaded(placementId, loaded: true)
-        DispatchQueue.main.async { [weak self] in
-            self?.delegate?.adDidLoad()
-        }
-    }
-    func onAdDisplayed(_ placementId: String) {}
-    func onAdClicked(_ placementId: String) {}
-    func onAdClosed(_ placementId: String) {}
-    func onAdFailed(_ placementId: String, errorCode: Int, errorMessage: String) {
-        guard !finished else { return }
-        finished = true
-        BidscubeLevelPlayAdapterState.setInterstitialLoaded(placementId, loaded: false)
-        let code = errorCode != 0 ? errorCode : ISAdapterErrorInternal
-        DispatchQueue.main.async { [weak self] in
-            self?.delegate?.adDidFailToLoadWith(.noFill, errorCode: code, errorMessage: errorMessage)
-        }
-    }
-}
-
 final class BidscubeInterstitialShowCallback: NSObject, AdCallback {
     weak var delegate: ISInterstitialAdDelegate?
 
@@ -93,13 +66,11 @@ final class BidscubeInterstitialShowCallback: NSObject, AdCallback {
         }
     }
     func onAdClosed(_ placementId: String) {
-        BidscubeLevelPlayAdapterState.setInterstitialLoaded(placementId, loaded: false)
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.adDidClose()
         }
     }
     func onAdFailed(_ placementId: String, errorCode: Int, errorMessage: String) {
-        BidscubeLevelPlayAdapterState.setInterstitialLoaded(placementId, loaded: false)
         let code = errorCode != 0 ? errorCode : ISAdapterErrorInternal
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.adDidFailToShowWithErrorCode(code, errorMessage: errorMessage)
@@ -108,33 +79,6 @@ final class BidscubeInterstitialShowCallback: NSObject, AdCallback {
 }
 
 // MARK: - Rewarded
-
-final class BidscubeRewardedLoadCallback: NSObject, AdCallback {
-    weak var delegate: ISRewardedVideoAdDelegate?
-    private var finished = false
-
-    func onAdLoading(_ placementId: String) {}
-    func onAdLoaded(_ placementId: String) {
-        guard !finished else { return }
-        finished = true
-        BidscubeLevelPlayAdapterState.setRewardedLoaded(placementId, loaded: true)
-        DispatchQueue.main.async { [weak self] in
-            self?.delegate?.adDidLoad()
-        }
-    }
-    func onAdDisplayed(_ placementId: String) {}
-    func onAdClicked(_ placementId: String) {}
-    func onAdClosed(_ placementId: String) {}
-    func onAdFailed(_ placementId: String, errorCode: Int, errorMessage: String) {
-        guard !finished else { return }
-        finished = true
-        BidscubeLevelPlayAdapterState.setRewardedLoaded(placementId, loaded: false)
-        let code = errorCode != 0 ? errorCode : ISAdapterErrorInternal
-        DispatchQueue.main.async { [weak self] in
-            self?.delegate?.adDidFailToLoadWith(.noFill, errorCode: code, errorMessage: errorMessage)
-        }
-    }
-}
 
 final class BidscubeRewardedShowCallback: NSObject, AdCallback {
     weak var delegate: ISRewardedVideoAdDelegate?
@@ -156,14 +100,12 @@ final class BidscubeRewardedShowCallback: NSObject, AdCallback {
     }
     func onAdClosed(_ placementId: String) {
         rewardGuard.onClosedBeforeCompletion()
-        BidscubeLevelPlayAdapterState.setRewardedLoaded(placementId, loaded: false)
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.adDidClose()
         }
     }
     func onAdFailed(_ placementId: String, errorCode: Int, errorMessage: String) {
         rewardGuard.onShowFailed()
-        BidscubeLevelPlayAdapterState.setRewardedLoaded(placementId, loaded: false)
         let code = errorCode != 0 ? errorCode : ISAdapterErrorInternal
         DispatchQueue.main.async { [weak self] in
             self?.delegate?.adDidFailToShowWithErrorCode(code, errorMessage: errorMessage)

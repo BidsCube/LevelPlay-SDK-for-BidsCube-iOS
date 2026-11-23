@@ -3,16 +3,16 @@ import UIKit
 import StoreKit
 
 public final class BidscubeSDK {
-    private static var configuration: SDKConfig?
-    private static var manualAdPosition: AdPosition?
-    private static var responseAdPosition: AdPosition = .unknown
-    private static var consentRequired: Bool = false
-    private static var hasAdsConsentFlag: Bool = false
-    private static var hasAnalyticsConsentFlag: Bool = false
-    private static var consentDebugDeviceId: String?
+    nonisolated(unsafe) private static var configuration: SDKConfig?
+    nonisolated(unsafe) private static var manualAdPosition: AdPosition?
+    nonisolated(unsafe) private static var responseAdPosition: AdPosition = .unknown
+    nonisolated(unsafe) private static var consentRequired: Bool = false
+    nonisolated(unsafe) private static var hasAdsConsentFlag: Bool = false
+    nonisolated(unsafe) private static var hasAnalyticsConsentFlag: Bool = false
+    nonisolated(unsafe) private static var consentDebugDeviceId: String?
     
     
-    private static var activeBanners: [BannerAdView] = []
+    nonisolated(unsafe) private static var activeBanners: [BannerAdView] = []
 
     
     public static func initialize(config: SDKConfig) {
@@ -60,6 +60,22 @@ public final class BidscubeSDK {
     
     public static func getConfiguration() -> SDKConfig? {
         return configuration
+    }
+
+    /// Update publisher user id after initialization. Sent as `user_id` on ad requests for postback.
+    public static func setUserId(_ userId: String?) {
+        guard let current = configuration else {
+            Logger.warning("setUserId called before initialize; ignored")
+            return
+        }
+        let trimmed = userId?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalized = (trimmed?.isEmpty == false) ? trimmed : nil
+        configuration = SDKConfig.Builder.from(current).userId(normalized).build()
+        Logger.info("BidsCube SDK user_id updated")
+    }
+
+    public static func getUserId() -> String? {
+        return configuration?.userId
     }
 
     public static func cleanup() {

@@ -39,9 +39,23 @@ struct DeviceInfo {
     public static var userAgent: String {
         let osVersionToken = UIDevice.current.systemVersion.replacingOccurrences(of: ".", with: "_")
         let safariVersionToken = systemMajorMinorVersion
-        let cpuToken = UIDevice.current.userInterfaceIdiom == .pad ? "iPad; CPU OS" : "iPhone; CPU iPhone OS"
+        let idiom = UIDevice.current.userInterfaceIdiom
+        return "Mozilla/5.0 (\(cpuToken(for: idiom)) \(osVersionToken) like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/\(safariVersionToken)\(mobileToken(for: idiom)) Safari/604.1"
+    }
 
-        return "Mozilla/5.0 (\(cpuToken) \(osVersionToken) like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/\(safariVersionToken) Mobile/15E148 Safari/604.1"
+    static func cpuToken(for idiom: UIUserInterfaceIdiom) -> String {
+        switch idiom {
+        case .pad:
+            return "iPad; CPU OS"
+        case .tv:
+            return "Apple TV; CPU OS"
+        default:
+            return "iPhone; CPU iPhone OS"
+        }
+    }
+
+    static func mobileToken(for idiom: UIUserInterfaceIdiom) -> String {
+        idiom == .tv ? "" : " Mobile/15E148"
     }
 
     private static var systemMajorMinorVersion: String {

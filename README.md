@@ -7,10 +7,10 @@ iOS SDK for image, video, and native ads. This repository now contains:
 
 ## Requirements
 
-- iOS 13.0+
-- `BidscubeSDK` 1.0.1
-- `LevelPlayMediationBidscubeAdapter` 1.0.1 when using LevelPlay
-- `IronSourceSDK` 9.3.0.0 when using LevelPlay
+- iOS 14.0+ and tvOS 14.0+ for `BidscubeSDK`
+- `BidscubeSDK` 1.0.2
+- `LevelPlayMediationBidscubeAdapter` 1.0.2 when using LevelPlay on iOS
+- `IronSourceSDK` 9.3.0.0 when using LevelPlay (iOS only; the pod has no tvOS slice)
 - Xcode 12+
 - For LevelPlay mediation: Bidscube `placementId` configured as the custom adapter instance parameter
 
@@ -25,7 +25,7 @@ platform :ios, '14.0'
 use_frameworks!
 
 target 'YourApp' do
-  pod 'BidscubeSDK', '1.0.1'
+  pod 'BidscubeSDK', '1.0.2'
 end
 ```
 
@@ -38,7 +38,7 @@ pod install
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/BidsCube/LevelPlay-SDK-iOS.git", from: "1.0.1")
+.package(url: "https://github.com/BidsCube/LevelPlay-SDK-iOS.git", from: "1.0.2")
 ```
 
 ## Unity LevelPlay integration
@@ -54,9 +54,9 @@ platform :ios, '13.0'
 use_frameworks!
 
 target 'YourApp' do
-  pod 'BidscubeSDK', '1.0.1'
+  pod 'BidscubeSDK', '1.0.2'
   pod 'IronSourceSDK', '9.3.0.0'
-  pod 'LevelPlayMediationBidscubeAdapter', :git => 'https://github.com/BidsCube/LevelPlay-SDK-iOS.git', :tag => 'v1.0.1'
+  pod 'LevelPlayMediationBidscubeAdapter', :git => 'https://github.com/BidsCube/LevelPlay-SDK-iOS.git', :tag => 'v1.0.2'
 end
 ```
 
@@ -72,14 +72,20 @@ The adapter depends on `BidscubeSDK` and `IronSourceSDK`.
 
 ### 3. LevelPlay format behavior
 
-- Banner: adapter calls `BidscubeSDK.getImageAdView(...)` and passes the returned `UIView` to LevelPlay.
-- Interstitial: adapter validates availability during `loadAd` and shows via `BidscubeSDK.showImageAd(...)`.
-- Rewarded: adapter validates availability during `loadAd` and shows via `BidscubeSDK.showVideoAd(...)`.
+- Banner: adapter calls `BidscubeSDK.getImageAdView(...)` once on load and passes the returned `UIView` to LevelPlay.
+- Interstitial: `loadAd` checks init and `placementId` only (no SSP request). Show calls `BidscubeSDK.presentImageAd(...)`.
+- Rewarded: same load check. Show calls `BidscubeSDK.presentVideoAd(...)`. Reward is reported only after video completion.
 - Native: **not supported** for LevelPlay custom adapter in this release.
 
-Load performs an availability precheck; show may trigger another Bidscube request until preload/cache APIs exist in the native SDK.
+Fullscreen ready state is per adapter instance. A no-fill is reported from show.
 
-The adapter initializes `BidscubeSDK` on first use if it is not already initialized (prefer app-level init with `SDKConfig`).
+The adapter initializes `BidscubeSDK` on first use if it is not already initialized. That config uses `defaultAdPosition = .fullScreen` and a `userId` from `ISBidscubeCustomAdapter.setUserId` or the instance keys `userId` / `user_id`. If the app already called `BidscubeSDK.initialize`, the adapter does not override it; update the id afterwards with `BidscubeSDK.setUserId`.
+
+### Apple TV
+
+`BidscubeSDK` links on tvOS 14+. Ad views take Siri Remote focus, Select opens the click URL, and Menu closes a fullscreen ad. The request user agent identifies Apple TV. tvOS has no WebKit and no Google IMA, so HTML and VAST creatives fail closed; a direct image URL or mp4/m3u8 still plays. SKAdNetwork stays on iOS.
+
+LevelPlay itself does not run on Apple TV. `IronSourceSDK` 9.3.0.0 (and 9.8.0.0) publishes an iOS slice only, so `LevelPlayMediationBidscubeAdapter` stays an iOS pod.
 
 ## Release status
 
@@ -93,7 +99,7 @@ From the project root:
 swift build
 ```
 
-`swift build` compiles **BidscubeSDK** and the **LevelPlayMediationBidscubeAdapter** target. IronSource is **not** a SwiftPM dependency, so `ISBidscubeCustom*` types are only built when `canImport(IronSource)` is true (typically **CocoaPods** with `IronSourceSDK`). The manifest file **`LevelPlayMediationBidscubeAdapterManifest.swift`** always compiles and documents version **1.0.1** and integration notes.
+`swift build` compiles **BidscubeSDK** and the **LevelPlayMediationBidscubeAdapter** target. IronSource is **not** a SwiftPM dependency, so `ISBidscubeCustom*` types are only built when `canImport(IronSource)` is true (typically **CocoaPods** with `IronSourceSDK`). The manifest file **`LevelPlayMediationBidscubeAdapterManifest.swift`** always compiles and documents version **1.0.2** and integration notes.
 
 For LevelPlay adapter distribution to apps, use **`LevelPlayMediationBidscubeAdapter.podspec`** (depends on `BidscubeSDK`, `IronSourceSDK`).
 
@@ -101,12 +107,11 @@ For LevelPlay adapter distribution to apps, use **`LevelPlayMediationBidscubeAda
 
 | File | Role |
 |------|------|
-| `LevelPlayMediationBidscubeAdapterManifest.swift` | `adapterVersion` (**1.0.1**), `placementInstanceKey`, CocoaPods IronSource floor, SPM note |
-| `BidscubeLevelPlayAdapterState.swift` | Loaded interstitial / rewarded placement sets (Android parity) |
-| `BidscubeLevelPlayAdapterPlacement.swift` | `bidscubePlacementId(from:)` |
+| `LevelPlayMediationBidscubeAdapterManifest.swift` | `adapterVersion` (**1.0.2**), `placementInstanceKey`, CocoaPods IronSource floor, SPM note |
+| `BidscubeLevelPlayAdapterPlacement.swift` | `bidscubePlacementId(from:)` and `userId` / `user_id` |
 | `BidscubeLevelPlayAdapterDelegateInvoke.swift` | Optional rewarded delegate selectors |
-| `BidscubeLevelPlayAdapterCallbacks.swift` | `AdCallback` implementations + load `finished` guards |
-| `ISBidscubeCustomAdapter.swift` | Base network adapter; `networkSDKVersion` → `Constants.sdkVersion` |
+| `BidscubeLevelPlayAdapterCallbacks.swift` | `AdCallback` implementations for banner load and fullscreen show |
+| `ISBidscubeCustomAdapter.swift` | Base network adapter; `setUserId`; `networkSDKVersion` → `Constants.sdkVersion` |
 | `ISBidscubeCustomBanner.swift` | Banner |
 | `ISBidscubeCustomInterstitial.swift` | Interstitial |
 | `ISBidscubeCustomRewardedVideo.swift` | Rewarded |
@@ -145,4 +150,4 @@ MIT. See `LICENSE`.
 
 ## Version
 
-Bidscube iOS SDK 1.0.1.
+Bidscube iOS SDK 1.0.2.

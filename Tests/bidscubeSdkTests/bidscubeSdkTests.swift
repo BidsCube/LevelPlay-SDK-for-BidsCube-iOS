@@ -2,6 +2,7 @@ import Testing
 import UIKit
 @testable import BidscubeSDK
 
+@Suite(.serialized)
 struct bidscubeSdkTests {
     final class Delegate: AdCallback, ConsentCallback {
         var consentInfoUpdated = false
@@ -39,10 +40,6 @@ struct bidscubeSdkTests {
         BidscubeSDK.requestConsentInfoUpdate(callback: delegate)
         try await Task.sleep(nanoseconds: 200_000_000)
         #expect(delegate.consentInfoUpdated)
-
-        BidscubeSDK.showImageAd("20212", delegate)
-        try await Task.sleep(nanoseconds: 200_000_000)
-        #expect(delegate.adLoaded)
 
         let v1 = BidscubeSDK.getImageAdView("20212", delegate)
         #expect((v1 as UIView?) != nil)

@@ -125,7 +125,11 @@ final class AdViewController: UIViewController {
     }
     
     private func setupUI() {
+        #if os(tvOS)
+        view.backgroundColor = .black
+        #else
         view.backgroundColor = .systemBackground
+        #endif
         
         backButton = UIButton(type: .system)
         backButton.setTitle("← Back", for: .normal)
@@ -316,8 +320,12 @@ final class AdViewController: UIViewController {
         }
     }
     
+    private final class Attempts {
+        var value = 0
+    }
+
     private func startPositionMonitoring() {
-        var attempts = 0
+        let attempts = Attempts()
         let maxAttempts = 20
         
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] timer in
@@ -326,10 +334,10 @@ final class AdViewController: UIViewController {
                 return
             }
             
-            attempts += 1
+            attempts.value += 1
             let currentPosition = BidscubeSDK.getResponseAdPosition()
             
-            if currentPosition != .unknown || attempts >= maxAttempts {
+            if currentPosition != .unknown || attempts.value >= maxAttempts {
                 timer.invalidate()
                 self.updatePosition(currentPosition)
             }
@@ -593,6 +601,16 @@ final class AdViewController: UIViewController {
         positionLabel.isHidden = false
     }
     
+    #if os(tvOS)
+    public override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        if presses.contains(where: { $0.type == .menu }) {
+            backButtonTapped()
+            return
+        }
+        super.pressesEnded(presses, with: event)
+    }
+    #endif
+
     @objc private func backButtonTapped() {
         callback?.onAdClosed(placementId)
         
